@@ -24,38 +24,38 @@ def calculate_block_size(cidr):
     return(blockSize)
     
 def subnet_mask(cidr):
-    i = 0
-    while cidr - 8 >=  0:
+    i = 0   # a dummy variable we use to iterate
+    while cidr - 8 >=  0:   # determines which of the 4 octets we need to do math to calculate
         cidr = cidr - 8
         i = i + 1
     subnetMask = []
-    for j in range(i):
+    for j in range(i):  # uses the dumby variable j to determine which octets we can simply consider as 255
         subnetMask.append("255.")
-    k = 8 - cidr
+    k = 8 - cidr    # using k as the 'inverse' of our cidr block makes the math simpler
     subnetOctet = pow(2,k)
-    subnetOctet = 256 - subnetOctet
+    subnetOctet = 256 - subnetOctet # we use 256 instead of 255 because we're doing decimal math right now, not binary
     subnetMask.append(str(subnetOctet))
-    i = i + 1
-    while i <= 3:
+    i = i + 1   # makes sure we skip the octet we just calculated. We don't want to modify that octet
+    while i <= 3:   # tosses 0 on the end of our subnet mask
         subnetMask.append(".0")
         i = i + 1
     subnetMask = ''.join(subnetMask)
     return(subnetMask)
 
 def ip_space(blockSize,ipaddr):
-    i = 3
-    while blockSize // 256 >= 1:
+    i = 3   # defining a dummy variable to iterate through
+    while blockSize // 256 >= 1:    # gives us the block size of the octet we're working with
         blockSize = blockSize // 256
         i = i - 1
     ipaddr = ipaddr.split(".", 3)
-    octet = int(ipaddr[i])
+    octet = int(ipaddr[i])  # determines which octet we'll be doing math with
     lowerOctet = octet
-    while lowerOctet % blockSize != 0:
+    while lowerOctet % blockSize != 0:  # subtracts 1 from our octet value until it's divible by our octet's block size
         lowerOctet = lowerOctet - 1
-    upperOctet = lowerOctet + blockSize - 1
-    j = i
+    upperOctet = lowerOctet + blockSize - 1 # subtracts 1 because we're switching between decimal and 'binary' math at this step
+    j = i # another dummy iterator based on i, but for our upper bound this time
     ipaddr[i] = lowerOctet
-    while i < 3:
+    while i < 3: # this math is simply for when we have subnets larger than /24 and the trailing octets must be 0 or 255
         i = i + 1
         ipaddr[i] = 0
     lowerBound = '.'.join(str(e) for e in ipaddr)
